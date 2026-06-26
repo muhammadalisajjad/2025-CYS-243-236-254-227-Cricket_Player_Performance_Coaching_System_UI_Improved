@@ -1,0 +1,10 @@
+1. Player Profile Report
+2. Team Player List Report
+3. Coach Assigned Players Report
+4. Fitness Progress Report
+5. Injury Status Report
+6. Training Attendance Report
+7. Match Squad Report
+8. Batting Performance Report
+9. Bowling Performance Report
+10. Overall Player Ranking Report
