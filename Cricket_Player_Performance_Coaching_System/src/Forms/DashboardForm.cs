@@ -55,10 +55,10 @@ public class DashboardForm : BaseForm
         AddMenuButton(menuPanel, "  Error Logs", () => new SimpleTableForm("Error Logs", "SELECT * FROM error_logs ORDER BY created_at DESC").ShowDialog());
         AddMenuButton(menuPanel, "  Reports", () => new ReportsForm().ShowDialog());
         AddMenuButton(menuPanel, "  Performance", () => new PerformanceForm().ShowDialog());
-        AddMenuButton(menuPanel, "  Matches", () => new SimpleTableForm("Matches", "SELECT * FROM matches").ShowDialog());
-        AddMenuButton(menuPanel, "  Fitness", () => new SimpleTableForm("Fitness Records", "SELECT * FROM fitness_records").ShowDialog());
-        AddMenuButton(menuPanel, "  Training", () => new SimpleTableForm("Training Sessions", "SELECT * FROM training_sessions").ShowDialog());
-        AddMenuButton(menuPanel, "  Teams", () => new SimpleTableForm("Teams", "SELECT * FROM teams").ShowDialog());
+        AddMenuButton(menuPanel, "  Matches", () => new MatchForm().ShowDialog());
+        AddMenuButton(menuPanel, "  Fitness", () => new FitnessForm().ShowDialog());
+        AddMenuButton(menuPanel, "  Training", () => new TrainingForm().ShowDialog());
+        AddMenuButton(menuPanel, "  Teams", () => new TeamForm().ShowDialog());
         AddMenuButton(menuPanel, "  Coaches", () => new SimpleTableForm("Coaches", "SELECT c.coach_id, u.full_name, c.specialization, c.experience_years FROM coaches c JOIN users u ON c.user_id=u.user_id").ShowDialog());
         AddMenuButton(menuPanel, "  Players", () => new PlayerForm().ShowDialog());
 
@@ -86,6 +86,7 @@ public class DashboardForm : BaseForm
 
         var infoCard = UiTheme.CardPanel(24);
         infoCard.Dock = DockStyle.Fill;
+
         var infoTitle = new Label
         {
             Text = "System Modules",
@@ -94,13 +95,15 @@ public class DashboardForm : BaseForm
             Font = UiTheme.SectionFont,
             ForeColor = UiTheme.Text
         };
+
         var info = new Label
         {
-            Text = "Use the sidebar to manage cricket players, coaches, teams, training sessions, fitness records, matches, match performance, and parameter-based PDF reports.\n\nThis improved UI uses a modern sidebar, dashboard cards, styled tables, panels, responsive docking, and clean input spacing.",
+            Text = "Use the sidebar to manage cricket players, teams, training sessions, fitness records, matches, performance, and PDF reports.\n\nTeams, Matches, Training and Fitness now open proper forms where you can add, edit and delete data.",
             Dock = DockStyle.Fill,
             Font = new Font("Segoe UI", 11),
             ForeColor = UiTheme.MutedText
         };
+
         infoCard.Controls.Add(info);
         infoCard.Controls.Add(infoTitle);
         content.Controls.Add(infoCard);
@@ -125,7 +128,7 @@ public class DashboardForm : BaseForm
     {
         try
         {
-            return Convert.ToInt32(DbHelper.ExecuteScalar($"SELECT COUNT(*) FROM {table}"));
+            return Convert.ToInt32(DbHelper.ExecuteScalar($"SELECT COUNT(*) FROM {table}") ?? 0);
         }
         catch
         {
@@ -133,49 +136,49 @@ public class DashboardForm : BaseForm
         }
     }
 
-    private void AddStatCard(string title, int value, string subtitle)
+    private void AddStatCard(string title, int count, string subtitle)
     {
         var card = UiTheme.CardPanel(16);
-        card.Width = 210;
-        card.Height = 112;
-        card.Margin = new Padding(0, 0, 14, 0);
+        card.Width = 215;
+        card.Height = 110;
+        card.Margin = new Padding(0, 0, 16, 0);
 
-        var lblValue = new Label
+        var lblTitle = new Label
         {
-            Text = value.ToString(),
+            Text = title,
+            Dock = DockStyle.Top,
+            Height = 28,
+            Font = UiTheme.SectionFont,
+            ForeColor = UiTheme.Text
+        };
+
+        var lblCount = new Label
+        {
+            Text = count.ToString(),
             Dock = DockStyle.Top,
             Height = 42,
             Font = new Font("Segoe UI", 24, FontStyle.Bold),
             ForeColor = UiTheme.Primary
         };
-        var lblTitle = new Label
-        {
-            Text = title,
-            Dock = DockStyle.Top,
-            Height = 26,
-            Font = UiTheme.SectionFont,
-            ForeColor = UiTheme.Text
-        };
+
         var lblSub = new Label
         {
             Text = subtitle,
-            Dock = DockStyle.Top,
-            Height = 24,
+            Dock = DockStyle.Fill,
             Font = UiTheme.SmallFont,
             ForeColor = UiTheme.MutedText
         };
 
         card.Controls.Add(lblSub);
+        card.Controls.Add(lblCount);
         card.Controls.Add(lblTitle);
-        card.Controls.Add(lblValue);
-        lblValue.BringToFront();
         _statsPanel.Controls.Add(card);
     }
 
-    private static void AddMenuButton(Control parent, string text, Action action)
+    private static void AddMenuButton(Control parent, string text, Action onClick)
     {
         var button = UiTheme.SidebarButton(text);
-        button.Click += (_, _) => action();
+        button.Click += (_, _) => onClick();
         parent.Controls.Add(button);
         button.BringToFront();
     }
